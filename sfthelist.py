@@ -121,15 +121,32 @@ class Event:
         self.dates.append(morning_datetime(proposed_start_date))
         proposed_start_date += timedelta(days=1)
       
- 
+
   def parse_days(self, days):
     return [int(day) for day in days.split('/')]
-    
+
+
+
+  def parse_blob(self):
+
+    regex_info = '(.*?)(?:at(?: the)? )(.+?)\s*?(a/a|\?/\?|\d{1,2}\+) (\$\d+(?:[/-]\$\d+)?|free)?'
+    print self.rest
+    try:
+      mo = re.search(regex_info, self.rest)
+      self.bands, self.venue, self.age, self.price = mo.groups()
+    except AttributeError:
+      self.bands, self.venue, self.age, self.price = (None,None,None,None)
+      pass
+
   def __str__(self):
     
     return """Dates : %s
 Description : %s
-    """ % (', '.join([str(e) for e in self.dates]), self.rest)
+Bands : %s
+Venue : %s
+Age : %s
+Price : %s
+    """ % (', '.join([str(e) for e in self.dates]), self.rest, self.bands, self.venue, self.age, self.price)
     
 
 
@@ -167,14 +184,15 @@ class List:
           event = Event(month=month, days=days, rest=rest)
           
         elif mo3:
-          print mo3.groups()
           month_start, day_start, month_end_group, month_end, day_end, rest = mo3.groups()
           event = Event(month_start=month_start, day_start=day_start, month_end=month_end, day_end=day_end, rest=rest)
 
         self.events.append(event)
       else:
         event.rest += ' ' + l.rstrip('\n').lstrip(' ')
-    
+  def parse(self):
+    for event in self.events:
+      event.parse_blob()
   def __str__(self):
     return '\n'.join([str(event) for event in self.events])
 
@@ -183,9 +201,12 @@ class List:
 
 
 
-print List(open('testcase.txt'))
+l = List(open('sfthelist.txt'))
 
 
+
+l.parse()
+print l
 # for event in events:
 #   print event
 #   time.sleep(1)
