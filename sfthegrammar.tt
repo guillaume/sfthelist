@@ -1,0 +1,203 @@
+require "rubygems"
+require "treetop"
+
+grammar SFTheList
+
+  # root node
+  rule list
+    (show)*
+    {
+      def content
+        elements.map do |e|
+          e.content
+        end
+      end      
+    }
+  end
+  
+  # helper for whitespaces
+  rule whitespace
+    [\s]+ {
+      def content
+          [:whitespace]
+      end    
+    }
+  end
+  
+  rule show
+    date (weekday whitespace)? bands_and_venue_prefix? venue whitespace age_restriction notes "\n"?
+    {
+      def content
+        elements.map do |e| 
+          if (defined? e.content )
+            e.content
+          else
+            e.text_value
+          end
+        end
+      end
+    }
+  end
+  
+  # jul  4-6
+  # jun 30-jul 3
+  rule date
+    #month whitespace days (("-" / "/") (month whitespace)? days)?
+    (month / whitespace / days / [-/])*
+    {
+      def content
+        [:date, text_value]
+      end    
+    }
+    
+  end
+  
+  rule month
+    ("jan" / "feb" / "mar" / "apr" / "may" / "jun" / "jul" / "aug" / "sep" / "oct" / "nov" / "dec") {
+      def content
+          [:month, text_value]
+      end    
+    }
+  end
+  
+  # 7
+  # 7/8 
+  # 4-6
+  rule days
+    [0-9]+
+    {
+      def content
+        [:days, text_value]
+      end    
+    }
+  end
+  
+  
+
+  
+
+  rule weekday
+    ("sun" / "mon" / "tue" / "wed" / "thr" / "fri" / "sat") 
+    {
+      def content
+          [:weekday, text_value]
+      end    
+    }
+  end
+  
+  rule bands_and_venue_prefix
+    bands venue_prefix
+    {
+      def content
+        # only return the bands
+        return elements[0].content
+        # elements.map {|e| e.content}
+      end
+    }
+  end
+
+  rule bands
+    (!venue_prefix .)*
+    {
+      def content
+        [:bands, text_value]
+      end    
+    }
+  end
+  
+  rule venue_prefix
+    (" at the " / " at ")
+    {
+      def content
+        [:venue_prefix, text_value]
+      end    
+    }
+  end
+  
+  rule venue
+    (!(whitespace age_restriction) .)*
+    {
+      def content
+        [:venue, text_value]
+      end    
+    }
+  end
+    
+  #    ('a/a' / [\d]+ "+")
+  rule age_restriction
+  (([\d]+ "+") / "a/a")
+  {
+    def content
+      [:age_restriction, text_value]
+    end    
+  }
+  end
+  
+  rule notes
+    (!("\n" month) .)*
+    {
+      def content
+        [:notes, text_value]
+      end    
+    }
+  end
+  
+  # Used to parse the date again to just get the 1st day so the Time.parse() does not get confused with crazy dates
+  rule first_day
+    month whitespace days
+  end
+  
+  # Try to parse the price
+  # $14
+  # free
+  # $12/$14
+  # $65-$250
+  rule price
+    (("$" [$\d\./-]+) / "free" )
+  end
+  
+
+  # 7:30pm/8pm
+  # 7pm/7:30pm
+  # 9pm
+  # 5pm til 7:30pm
+  # 7pm/8pm
+  rule time
+    hour (("/" / " and " / " til ") time)? # not very strict
+  end
+  
+  rule hour
+    ([\d:apm]+ / "noon" / "midnight")
+  end
+  
+  # *    recommendable Shows                a/a  all ages
+  # $    will probably sell out             @    pit warning
+  # ^    under 21 must pay more             #    no ins/outs
+  rule annotations
+    [*$^@#\s]+
+  end
+  
+####################################################################################################################################
+# Below is a set of rules I ended up not using in the grammar because their strict nature was hard to deal with the list's ambiguity
+####################################################################################################################################
+# 
+#  
+#  # (Benefit for Mo's Kitchen & Glide programs)
+#  # (also dec 29/30)
+#  rule comments
+#    "(" (!")" .)* ")"
+#  end
+#  
+#  rule band_token
+#    [^,\s]+ {
+#      def content
+#          [:band_token, text_value]
+#      end    
+#    }
+#  end
+#  
+#  
+
+
+
+end
