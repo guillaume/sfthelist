@@ -1,5 +1,5 @@
 require "rubygems"
-require "polyglot"
+#require "polyglot"
 require "treetop"
 require "pp"
 require "active_support/all"
