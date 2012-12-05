@@ -6,7 +6,7 @@ require "active_support/all"
 require "ri_cal"
 require 'open-uri'
 
-require "./sfthegrammar"
+require "./sfthegrammar.rb"
 
 SFTHELIST_REMOTE_URL = 'http://jon.luini.com/thelist/thelist.txt'
 class NewYearStateMachine
