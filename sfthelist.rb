@@ -5,6 +5,7 @@ require "sfthegrammar"
 require "pp"
 require "active_support/all"
 require "ri_cal"
+require 'open-uri'
 
 class NewYearStateMachine
   
@@ -113,7 +114,13 @@ end
 
 parser = SFTheListParser.new
 
-parsetree = parser.parse(File.read("tests/2012-12-03.txt"))
+# text = File.read("tests/2012-12-04.txt")
+text = open('http://jon.luini.com/thelist/thelist.txt') { |f| f.read }
+
+text = text.match(/funk-punk-thrash-ska.*?\n\n(.*?)\n\n/m)[1]
+
+parsetree = parser.parse(text)
+
 events = []
 
 # in the case that this returns nil, it means we were unable to parse the list
