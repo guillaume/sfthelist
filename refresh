@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+require './sfthelist.rb'
+SFTHELIST_ICS = "sfthelist.ics"
+
+puts "Fetching #{SFTHELIST_REMOTE_URL}"
+list = List.new(SFTHELIST_REMOTE_URL)
+File.open(SFTHELIST_ICS, 'w') { |file| file.write(list) }
+puts "Successfully wrote #{SFTHELIST_ICS}"
+  
