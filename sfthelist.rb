@@ -113,26 +113,32 @@ class Event
 end
 
 parser = SFTheListParser.new
-
-# text = File.read("tests/2012-12-04.txt")
-text = open('http://jon.luini.com/thelist/thelist.txt') { |f| f.read }
-
-text = text.match(/funk-punk-thrash-ska.*?\n\n(.*?)\n\n/m)[1]
-
-parsetree = parser.parse(text)
-
-events = []
-
-# in the case that this returns nil, it means we were unable to parse the list
-raise parser.failure_reason unless parsetree
-events = parsetree.content.map { |e| Event.new(e) }
-
-calendar = RiCal.Calendar do |cal|
-  events.each do |e|
-    cal.event do |ical_event|
-      e.fill_ical_event(ical_event)
-    end
-  end
+if ARGV.size >= 1
+  urls = ARGV
+else
+  urls = ['http://jon.luini.com/thelist/thelist.txt']
 end
 
-print calendar
+urls.each do |url|
+  text = open(url) { |f| f.read }
+
+  text = text.match(/funk-punk-thrash-ska.*?\n\n(.*?)\n\n/m)[1]
+
+  parsetree = parser.parse(text)
+
+  events = []
+
+  # in the case that this returns nil, it means we were unable to parse the list
+  raise parser.failure_reason unless parsetree
+  events = parsetree.content.map { |e| Event.new(e) }
+
+  calendar = RiCal.Calendar do |cal|
+    events.each do |e|
+      cal.event do |ical_event|
+        e.fill_ical_event(ical_event)
+      end
+    end
+  end
+
+  print calendar
+end
