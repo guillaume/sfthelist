@@ -30,13 +30,13 @@ class Event
   @@new_year_state_machine = NewYearStateMachine.new
   @@parser = SFTheListParser.new
   attr_reader :date, :bands, :venue, :age_restriction, :price, :time, :annotations, :annotations_text, :first_hour
-  DEFAULT_TIME = "5pm" # reasonable time for a show with unknown hour
+  DEFAULT_TIME = "5pm PST" # reasonable time for a show with unknown hour
   
   def clean_string(string)
     return string.gsub(/\s+/, " ").strip
   end
   def clean_time(time)
-    time.gsub("noon", "12pm").gsub("midnight","11:59pm")
+    time.gsub("noon", "12pm PST").gsub("midnight","11:59pm PST")
   end
   # sanitize the parse objects into clean values
   def initialize(parse_objects)
@@ -90,7 +90,7 @@ class Event
             # puts @time + " => " + @first_hour
 
             # parse the date again but with an hint of the start time
-            @date = Time.parse(@first_hour, @date)
+            @date = Time.parse("#{@first_hour} PST", @date)
           else
             # if we failed to get a time, default to a reasonable time for a show
             @date = Time.parse(DEFAULT_TIME, @date)
