@@ -1,5 +1,5 @@
 require 'sinatra'
-require 'sfthelist'
+require './sfthelist'
 
 # generate the file at startup time
 SFTHELIST_ICS = "sfthelist.ics"
