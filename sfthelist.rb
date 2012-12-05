@@ -7,6 +7,8 @@ require "active_support/all"
 require "ri_cal"
 require 'open-uri'
 
+
+SFTHELIST_REMOTE_URL = 'http://jon.luini.com/thelist/thelist.txt'
 class NewYearStateMachine
   
   attr_reader :year_addition
@@ -112,33 +114,49 @@ class Event
   end
 end
 
-parser = SFTheListParser.new
-if ARGV.size >= 1
-  urls = ARGV
-else
-  urls = ['http://jon.luini.com/thelist/thelist.txt']
-end
+class List
+  attr_reader :calendar
+  
+  def initialize(url)
+    parser = SFTheListParser.new
+    
+    text = open(url) { |f| f.read }
 
-urls.each do |url|
-  text = open(url) { |f| f.read }
+    text = text.match(/funk-punk-thrash-ska.*?\n\n(.*?)\n\n/m)[1]
 
-  text = text.match(/funk-punk-thrash-ska.*?\n\n(.*?)\n\n/m)[1]
+    parsetree = parser.parse(text)
 
-  parsetree = parser.parse(text)
+    events = []
 
-  events = []
+    # in the case that this returns nil, it means we were unable to parse the list
+    raise parser.failure_reason unless parsetree
+    events = parsetree.content.map { |e| Event.new(e) }
 
-  # in the case that this returns nil, it means we were unable to parse the list
-  raise parser.failure_reason unless parsetree
-  events = parsetree.content.map { |e| Event.new(e) }
-
-  calendar = RiCal.Calendar do |cal|
-    events.each do |e|
-      cal.event do |ical_event|
-        e.fill_ical_event(ical_event)
+    @calendar = RiCal.Calendar do |cal|
+      events.each do |e|
+        cal.event do |ical_event|
+          e.fill_ical_event(ical_event)
+        end
       end
     end
+    
   end
+end
 
-  print calendar
+
+def main
+  if ARGV.size >= 1
+    urls = ARGV
+  else
+    urls = [SFTHELIST_REMOTE_URL]
+  end
+  
+  urls.each do |url|
+    list = List.new(url)
+    print list.calendar
+  end  
+end
+
+if __FILE__ == $0
+  main
 end
