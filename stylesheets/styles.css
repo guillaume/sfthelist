@@ -96,9 +96,26 @@ img {
 }
 
 header {
-  width:270px;
+  width: 330px;
   float:left;
   position:fixed;
+}
+section img {
+  border: 1px solid #bbb;
+  width: 330px;
+  margin-bottom:10px;
+}
+
+header input {
+  
+  width:314px;
+  font: 100% "Lucida Grande", "Trebuchet MS", Verdana, sans-serif;
+  margin-bottom: 10px;
+  padding: 7px 9px;
+  border: 1px solid #CCC;
+  font-size: 13px;
+  line-height: 20px;
+  border-radius: 3px;
 }
 
 header ul {
