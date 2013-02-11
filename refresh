@@ -4,6 +4,6 @@ SFTHELIST_ICS = "sfthelist.ics"
 
 puts "Fetching #{SFTHELIST_REMOTE_URL}"
 list = List.new(SFTHELIST_REMOTE_URL)
-File.open(SFTHELIST_ICS, 'w') { |file| file.write(list) }
+File.open(SFTHELIST_ICS, 'w') { |file| file.write(list.calendar) }
 puts "Successfully wrote #{SFTHELIST_ICS}"
   
