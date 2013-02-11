@@ -167,7 +167,7 @@ grammar SFTheList
   end
   
   rule hour
-    ([\d:apm]+ / "noon" / "midnight")
+    ([\d:]+ [apm]{2} / "noon" / "midnight")
   end
   
   # *    recommendable Shows                a/a  all ages
